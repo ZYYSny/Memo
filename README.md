@@ -1,4 +1,3 @@
-# Memo
 from sklearn.cluster import KMeans
 import numpy as np
 from math import sqrt
@@ -20,7 +19,7 @@ graph_raw = np.loadtxt('./Graph.txt', dtype='int')
 node_list = graph_raw.flatten().tolist()
 node_list = list(set(node_list))
 node_list = sorted(node_list, key=int)  
-print node_list
+#print node_list
 #print node_list,len(node_list)
 #print graph_raw,len(graph_raw)
 
@@ -35,7 +34,7 @@ a = 0.1
 #list_graph_raw_c1 = graph_raw[:,1].tolist()
 
 for i in range(N):
-    log.info('%d',i)
+    #log.info('%d',i)
     for j in range(N):
         vertex_idx0 = node_list[i]
         vertex_idx1 = node_list[j]
@@ -101,7 +100,6 @@ print kmeans_PPR.labels_
 # graph_sort_c0 = np.argsort(graph_raw, axis=0)
 # graph_sort_c1 = np.argsort(graph_raw, axis=1)
 
-
 # purity
 results = {}
 label_raw = np.loadtxt('./Labels.txt', dtype='int')
@@ -109,6 +107,7 @@ for i in range(len(label_raw)):
     node = label_raw[i,0]
     label = label_raw[i,1]
     results[node] = label
+'''
 for index, kmeans_label in enumerate(kmeans_Ver_Sim.labels_):
     if node_list[index] not in results:
         continue
@@ -121,11 +120,12 @@ for index, kmeans_label in enumerate(kmeans_PPR.labels_):
     #print index, kmeans_label,node_list[index]
     print index,node_list[index], kmeans_label, results[node_list[index]]
 print 'PPR K-means results!'
+'''
 class_one = {"Clinton": 0, "Trump": 0}
 class_two = {"Clinton": 0, "Trump": 0}
 number = 0
-for index, kmeans_label in enumerate(kmeans_Ver_Sim.labels_):
-#for index, kmeans_label in enumerate(kmeans_PPR.labels_):
+#for index, kmeans_label in enumerate(kmeans_Ver_Sim.labels_):
+for index, kmeans_label in enumerate(kmeans_PPR.labels_):
     number += 1
     index = node_list[index]
     if index not in results:
@@ -155,25 +155,27 @@ purity = (class_one[label_class_one] + class_two[label_class_two]) / number
 print "purity: ",purity
 
 #entropy
-print class_one
+#print class_one
 number_class_one = 0
 for i, j in class_one.items():
     number_class_one += j
-print class_two
+#print class_two
 number_class_two = 0
 for i, j in class_two.items():
     number_class_two += j
-
-entropy = (-1)*((number_class_one*math.log(number_class_one/number)) + (number_class_two*math.log(number_class_two/number)))
+#print number_class_one, number_class_two,number
+entropy = (-1/number)*((number_class_one*math.log(number_class_one/number)) + (number_class_two*math.log(number_class_two/number)))
 print "entropy: ",entropy
 
 #NMI
-clinton = class_one["Clinton"] + class_two["Clinton"]
-trump = class_one["Trump"] + class_two["Trump"]
-H = -clinton*math.log(clinton/number) + (-trump*math.log(trump/number))
-I = -class_one["Clinton"]*math.log(class_one["Clinton"]/number) \
-    + (-class_one["Trump"]*math.log(class_one["Trump"]/number)) \
-    + (-class_two["Clinton"]*math.log(class_two["Clinton"]/number)) \
-    + (-class_two["Trump"]*math.log(class_two["Trump"]/number))
+clinton = (class_one["Clinton"] + class_two["Clinton"])/number
+trump = (class_one["Trump"] + class_two["Trump"])/number
+
+H = -clinton*math.log(clinton) + (-trump*math.log(trump))
+I = -class_one["Clinton"]/number*math.log(class_one["Clinton"]/number) \
+    + (-class_one["Trump"]/number*math.log(class_one["Trump"]/number)) \
+    + (-class_two["Clinton"]/number*math.log(class_two["Clinton"]/number)) \
+    + (-class_two["Trump"]/number*math.log(class_two["Trump"]/number))
+#print trump,clinton, I, H
 NMI = I / ((entropy + H) / 2)
 print "NMI: ",NMI
